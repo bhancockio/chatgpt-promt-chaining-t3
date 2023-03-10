@@ -64,3 +64,21 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+model Prompt {
+    id                String       @id @default(cuid())
+    text              String
+    previuosPromptId  Int?
+    nextPromptId      Int?
+    isContextPrompt   Boolean      @default(false)
+    matrixParametersX String?
+    matrixParametersY String?
+    Conversation      Conversation @relation(fields: [conversationId], references: [id])
+    conversationId    String
+}
+
+model Conversation {
+    id      String   @id @default(cuid())
+    name    String
+    prompts Prompt[]
+}
