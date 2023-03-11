@@ -1,24 +1,40 @@
+import { type Conversation } from "@prisma/client";
 import { type NextPage } from "next";
+import { useState } from "react";
 import ConversationContainer from "~/components/ConversationContainer";
+import ConversationSidebar from "~/components/ConversationSidebar";
 import PromptDetailView from "~/components/PromptDetailView";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
-  const createPrompt = api.prompt.create.useMutation({
-    onSuccess: () => {
-      console.log("Successfully posted prompt");
+  const [currentConversation, setCurrentConversation] =
+    useState<Conversation>();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+
+  api.conversation.getall.useQuery(undefined, {
+    onSuccess: (resp) => {
+      setConversations(resp);
+    },
+    onError: (error) => {
+      setConversations([]);
+      console.error(error);
     },
   });
 
   return (
-    <div className="p-10">
-      <div className="flex flex-row">
-        <div className="flex w-full">
-          <ConversationContainer />
-        </div>
-        <div className="flex w-full">
-          <PromptDetailView />
-        </div>
+    <div className="flex flex-row">
+      <div className="w-1/6">
+        <ConversationSidebar
+          conversations={conversations}
+          setCurrentConversation={setCurrentConversation}
+          setConversations={setConversations}
+        />
+      </div>
+      <div className="w-3/6">
+        <ConversationContainer currentConversation={currentConversation} />
+      </div>
+      <div className="w-2/6 bg-gray-100 text-black">
+        <PromptDetailView />
       </div>
     </div>
   );

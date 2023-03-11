@@ -2,26 +2,17 @@ import { type Prompt, type Conversation } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { api } from "~/utils/api";
 
-function ConversationContainer() {
-  const [currentConverastion, setCurrentConverastion] =
-    useState<Conversation>();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+function ConversationContainer({
+  currentConversation,
+}: {
+  currentConversation: Conversation;
+}) {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
 
-  api.conversation.getall.useQuery(undefined, {
-    onSuccess: (resp) => {
-      setConversations(resp);
-    },
-    onError: (error) => {
-      setConversations([]);
-      console.error(error);
-    },
-  });
-
   api.prompt.getAllPromptsForConversation.useQuery(
-    { conversationId: currentConverastion?.id || "" },
+    { conversationId: currentConversation?.id || "" },
     {
-      enabled: currentConverastion?.id !== undefined,
+      enabled: currentConversation?.id !== undefined,
       onSuccess: (resp) => {
         console.log("resp", resp);
         setPrompts(resp);
@@ -32,35 +23,18 @@ function ConversationContainer() {
       },
     }
   );
-
-  useEffect(() => {
-    if (conversations.length > 0) {
-      setCurrentConverastion(conversations[0]);
-    }
-  }, [conversations, setCurrentConverastion]);
-
   const promptMutation = api.prompt.create.useMutation({
     onSuccess: () => {
       console.log("Successfully created conversation");
     },
   });
 
-  const conversationMutation = api.conversation.create.useMutation({
-    onSuccess: () => {
-      console.log("Successfully created conversation");
-    },
-  });
-
-  const createConversation = () => {
-    conversationMutation.mutate({ name: "New Conversation" });
-  };
-
   const createPrompt = () => {
-    if (currentConverastion) {
+    if (currentConversation) {
       promptMutation.mutate({
         text: "test",
         isContextPrompt: false,
-        conversationId: currentConverastion?.id,
+        conversationId: currentConversation?.id,
       });
     }
   };
@@ -73,11 +47,10 @@ function ConversationContainer() {
       <div className="flex flex-row">
         <p>
           Current Conversation:{" "}
-          {currentConverastion
-            ? currentConverastion.name
+          {currentConversation
+            ? currentConversation.name
             : "No conversation currently selected"}
         </p>
-        <button onClick={createConversation}>Create Conversation</button>
         <button onClick={createPrompt}>Create Prompt</button>
       </div>
       <div></div>

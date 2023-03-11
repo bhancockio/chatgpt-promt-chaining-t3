@@ -75,10 +75,14 @@ model Prompt {
     matrixParametersY String?
     Conversation      Conversation @relation(fields: [conversationId], references: [id])
     conversationId    String
+    createdAt         DateTime     @default(now())
+    updatedAt         DateTime     @default(now()) @updatedAt
 }
 
 model Conversation {
-    id      String   @id @default(cuid())
-    name    String
-    prompts Prompt[]
+    id        String   @id @default(cuid())
+    name      String
+    prompts   Prompt[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 }
