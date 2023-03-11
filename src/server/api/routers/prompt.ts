@@ -12,15 +12,29 @@ const createPromptSchema = object({
   }),
 });
 
+const getAllPromptsForConversationSchema = object({
+  conversationId: string({
+    required_error: "Conversation ID is required",
+  }),
+});
+
 export const promptRouter = createTRPCRouter({
   create: publicProcedure
     .input(createPromptSchema)
     .mutation(({ ctx, input }) => {
+      const { prisma } = ctx;
       const { text, isContextPrompt, conversationId } = input;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      return ctx.prisma.prompt.create({
+      return prisma.prompt.create({
         data: { text, isContextPrompt, conversationId },
       });
+    }),
+  getAllPromptsForConversation: publicProcedure
+    .input(getAllPromptsForConversationSchema)
+    .query(({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { conversationId } = input;
+
+      return prisma.prompt.findMany({ where: { conversationId } });
     }),
 });

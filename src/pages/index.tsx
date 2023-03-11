@@ -1,6 +1,5 @@
 import { type NextPage } from "next";
 import ConversationContainer from "~/components/ConversationContainer";
-import ConversationHeader from "~/components/ConversationHeader";
 import PromptDetailView from "~/components/PromptDetailView";
 import { api } from "~/utils/api";
 
@@ -11,22 +10,16 @@ const Home: NextPage = () => {
     },
   });
 
-  const mutate = () => {
-    createPrompt.mutate({
-      text: "test",
-      isContextPrompt: false,
-      conversationId: "clf32wgh10008xxgyuzqi6fmf",
-    });
-  };
-
   return (
     <div className="p-10">
-      <ConversationHeader />
-      <div>
-        <ConversationContainer />
-        <PromptDetailView />
+      <div className="flex flex-row">
+        <div className="flex w-full">
+          <ConversationContainer />
+        </div>
+        <div className="flex w-full">
+          <PromptDetailView />
+        </div>
       </div>
-      <button onClick={mutate}>Create Prompt</button>
     </div>
   );
 };
