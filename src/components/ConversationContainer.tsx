@@ -1,5 +1,5 @@
 import { type Prompt, type Conversation } from "@prisma/client";
-import React, { useEffect, useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import { api } from "~/utils/api";
 
 function ConversationContainer({
@@ -29,8 +29,10 @@ function ConversationContainer({
       },
     }
   );
-  const promptMutation = api.prompt.create.useMutation({
-    onSuccess: (newPrompt) => {
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+  const promptMutation = api.prompt.post.useMutation({
+    onSuccess: (newPrompt: Prompt) => {
       console.log("Successfully created conversation", newPrompt);
       setPrompts((prompts) => prompts.concat(newPrompt));
     },
@@ -38,10 +40,19 @@ function ConversationContainer({
 
   const createPrompt = () => {
     if (currentConversation) {
-      promptMutation.mutate({
+      const newPrompt = {
         text: "test",
-        isContextPrompt: false,
+        isContextPrompt: prompts.length === 0,
         conversationId: currentConversation?.id,
+      };
+      promptMutation.mutate(newPrompt, {
+        onSuccess: (promptResponse) => {
+          console.log("response", promptResponse);
+          setPrompts((p) => p.concat(promptResponse));
+        },
+        onError: (error) => {
+          console.log("response", error);
+        },
       });
     }
   };

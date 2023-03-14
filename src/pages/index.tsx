@@ -3,7 +3,8 @@ import { type NextPage } from "next";
 import { useState } from "react";
 import ConversationContainer from "~/components/ConversationContainer";
 import ConversationSidebar from "~/components/ConversationSidebar";
-import PromptDetailView from "~/components/PromptDetailView";
+import PromptEditor from "~/components/PromptEditor";
+import PromptDetailView from "~/components/PromptEditor";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
@@ -41,7 +42,7 @@ const Home: NextPage = () => {
         />
       </div>
       <div className="w-2/6 bg-gray-100 text-black">
-        <PromptDetailView currentPrompt={currentPrompt} />
+        <PromptEditor prompt={currentPrompt} />
       </div>
     </div>
   );
