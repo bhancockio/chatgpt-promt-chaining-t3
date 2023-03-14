@@ -1,11 +1,15 @@
 import { type Prompt, type Conversation } from "@prisma/client";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "~/utils/api";
+
+const PromptCard = ({ prompt }: { prompt: Prompt }) => {
+  return <div>{prompt.text}</div>;
+};
 
 function ConversationContainer({
   currentConversation,
 }: {
-  currentConversation: Conversation;
+  currentConversation: Conversation | undefined;
 }) {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
 
@@ -23,7 +27,8 @@ function ConversationContainer({
       },
     }
   );
-  const promptMutation = api.prompt.create.useMutation({
+
+  const promptMutation = api.prompt.post.useMutation({
     onSuccess: () => {
       console.log("Successfully created conversation");
     },
@@ -31,20 +36,26 @@ function ConversationContainer({
 
   const createPrompt = () => {
     if (currentConversation) {
-      promptMutation.mutate({
+      const newPrompt = {
         text: "test",
-        isContextPrompt: false,
+        isContextPrompt: prompts.length === 0,
         conversationId: currentConversation?.id,
+      };
+      promptMutation.mutate(newPrompt, {
+        onSuccess: (promptResponse) => {
+          console.log("response", promptResponse);
+          setPrompts((p) => p.concat(promptResponse));
+        },
+        onError: (error) => {
+          console.log("response", error);
+        },
       });
     }
   };
 
   return (
-    <div
-      className="flex flex-col
-    "
-    >
-      <div className="flex flex-row">
+    <div className="flex flex-col p-5">
+      <div className="mb-6 flex flex-row justify-between">
         <p>
           Current Conversation:{" "}
           {currentConversation
@@ -53,7 +64,18 @@ function ConversationContainer({
         </p>
         <button onClick={createPrompt}>Create Prompt</button>
       </div>
-      <div></div>
+      {/* PROMPTS */}
+      <div className="text-center">
+        {prompts.length === 0 && (
+          <div>
+            <p>No prompts. </p>
+            <p>Create a new prompt to get started.</p>
+          </div>
+        )}
+        {prompts.map((prompt) => (
+          <PromptCard key={prompt.id} prompt={prompt} />
+        ))}
+      </div>
     </div>
   );
 }
