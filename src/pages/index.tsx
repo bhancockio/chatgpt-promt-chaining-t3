@@ -1,4 +1,4 @@
-import { type Conversation } from "@prisma/client";
+import { type Conversation, type Prompt } from "@prisma/client";
 import { type NextPage } from "next";
 import { useState } from "react";
 import ConversationContainer from "~/components/ConversationContainer";
@@ -7,6 +7,7 @@ import PromptDetailView from "~/components/PromptDetailView";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
+  const [currentPrompt, setCurrentPromt] = useState<Prompt>();
   const [currentConversation, setCurrentConversation] =
     useState<Conversation>();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -14,6 +15,9 @@ const Home: NextPage = () => {
   api.conversation.getall.useQuery(undefined, {
     onSuccess: (resp) => {
       setConversations(resp);
+      if (resp.length > 0) {
+        setCurrentConversation(resp[0]);
+      }
     },
     onError: (error) => {
       setConversations([]);
@@ -31,10 +35,13 @@ const Home: NextPage = () => {
         />
       </div>
       <div className="w-3/6">
-        <ConversationContainer currentConversation={currentConversation} />
+        <ConversationContainer
+          setCurrentPrompt={setCurrentPromt}
+          currentConversation={currentConversation}
+        />
       </div>
       <div className="w-2/6 bg-gray-100 text-black">
-        <PromptDetailView />
+        <PromptDetailView currentPrompt={currentPrompt} />
       </div>
     </div>
   );

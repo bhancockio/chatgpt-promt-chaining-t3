@@ -4,8 +4,10 @@ import { api } from "~/utils/api";
 
 function ConversationContainer({
   currentConversation,
+  setCurrentPrompt,
 }: {
-  currentConversation: Conversation;
+  currentConversation: Conversation | undefined;
+  setCurrentPrompt: Dispatch<SetStateAction<Prompt | undefined>>;
 }) {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
 
@@ -13,9 +15,13 @@ function ConversationContainer({
     { conversationId: currentConversation?.id || "" },
     {
       enabled: currentConversation?.id !== undefined,
-      onSuccess: (resp) => {
-        console.log("resp", resp);
-        setPrompts(resp);
+      onSuccess: (prompts) => {
+        console.log("prompts", prompts);
+        setPrompts(prompts);
+        if (prompts.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          setCurrentPrompt(prompts[0]);
+        }
       },
       onError: (error) => {
         console.error(error);
@@ -24,8 +30,9 @@ function ConversationContainer({
     }
   );
   const promptMutation = api.prompt.create.useMutation({
-    onSuccess: () => {
-      console.log("Successfully created conversation");
+    onSuccess: (newPrompt) => {
+      console.log("Successfully created conversation", newPrompt);
+      setPrompts((prompts) => prompts.concat(newPrompt));
     },
   });
 
@@ -40,20 +47,34 @@ function ConversationContainer({
   };
 
   return (
-    <div
-      className="flex flex-col
-    "
-    >
-      <div className="flex flex-row">
-        <p>
-          Current Conversation:{" "}
-          {currentConversation
-            ? currentConversation.name
-            : "No conversation currently selected"}
-        </p>
-        <button onClick={createPrompt}>Create Prompt</button>
+    <div className="flex flex-col justify-center align-middle">
+      {/* HEADER */}
+      <div className="w-full bg-gray-800 p-3 text-center text-white">
+        <h3 className="text-xl">Conversation Viewer</h3>
       </div>
-      <div></div>
+      {/* BODY */}
+      <div className="m-5 flex flex-col">
+        {prompts.length === 0 && (
+          <div>
+            <h1>No prompts found.</h1>
+          </div>
+        )}
+        {prompts.map((prompt) => (
+          <div
+            key={prompt.id}
+            onClick={() => {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+              setCurrentPrompt(prompt);
+            }}
+            className="cursor-pointer rounded-md border border-black/20 bg-gray-100 p-4 text-center"
+          >
+            {prompt.text}
+          </div>
+        ))}
+        <button onClick={createPrompt}>
+          Create Prompt <span>+</span>
+        </button>
+      </div>
     </div>
   );
 }

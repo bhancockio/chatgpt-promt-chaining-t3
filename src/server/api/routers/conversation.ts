@@ -1,3 +1,4 @@
+import { type Conversation } from "@prisma/client";
 import { object, string } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -19,9 +20,31 @@ export const conversationRouter = createTRPCRouter({
     .input(createConversationSchema)
     .mutation(({ ctx, input }) => {
       const { name } = input;
+      let newConveration: Conversation;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      return ctx.prisma.conversation.create({ data: { name } });
+      return ctx.prisma.conversation
+        .create({ data: { name } })
+        .then((conversation) => {
+          console.log("Conversation", conversation);
+          newConveration = conversation;
+
+          // Create the default prompt for the new conversation
+          return ctx.prisma.prompt.create({
+            data: {
+              text: "New prompt...",
+              isContextPrompt: true,
+              conversationId: conversation.id,
+            },
+          });
+        })
+        .then(() => {
+          return newConveration;
+        })
+        .catch((error) => {
+          console.error("Error creating new conversation");
+          console.error(error);
+          return null;
+        });
     }),
   getall: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.conversation.findMany();

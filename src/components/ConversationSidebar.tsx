@@ -14,8 +14,12 @@ function ConversationSidebar({
   const conversationMutation = api.conversation.create.useMutation({
     onSuccess: (resp) => {
       console.log("Successfully created conversation", resp);
-      setCurrentConversation(resp);
-      setConversations((c) => c.concat(resp));
+      if (resp) {
+        setCurrentConversation(resp);
+        setConversations((c) => c.concat(resp));
+      } else {
+        setCurrentConversation(undefined);
+      }
     },
     onError: (error) => {
       console.error(error);
