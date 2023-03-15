@@ -1,35 +1,18 @@
 import { type Prompt, type Conversation } from "@prisma/client";
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import { api } from "~/utils/api";
 
 function ConversationContainer({
   currentConversation,
   setCurrentPrompt,
+  setPrompts,
+  prompts,
 }: {
   currentConversation: Conversation | undefined;
   setCurrentPrompt: Dispatch<SetStateAction<Prompt | undefined>>;
+  setPrompts: Dispatch<SetStateAction<Prompt[]>>;
+  prompts: Prompt[];
 }) {
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
-
-  api.prompt.getAllPromptsForConversation.useQuery(
-    { conversationId: currentConversation?.id || "" },
-    {
-      enabled: currentConversation?.id !== undefined,
-      onSuccess: (prompts) => {
-        console.log("prompts", prompts);
-        setPrompts(prompts);
-        if (prompts.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          setCurrentPrompt(prompts[0]);
-        }
-      },
-      onError: (error) => {
-        console.error(error);
-        setPrompts([]);
-      },
-    }
-  );
-
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
   const promptMutation = api.prompt.post.useMutation({
     onSuccess: (newPrompt: Prompt) => {
@@ -44,7 +27,8 @@ function ConversationContainer({
   const createPrompt = () => {
     if (currentConversation) {
       const newPrompt = {
-        text: "test",
+        name: "New Prompt",
+        text: "",
         isContextPrompt: prompts.length === 0,
         conversationId: currentConversation?.id,
       };
@@ -74,7 +58,7 @@ function ConversationContainer({
             }}
             className="mb-8 cursor-pointer rounded-md border border-black/20 bg-gray-100 p-4 text-center"
           >
-            {prompt.text}
+            {prompt.name}
           </div>
         ))}
         <button onClick={createPrompt}>

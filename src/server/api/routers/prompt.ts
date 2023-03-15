@@ -4,6 +4,9 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 const postPromptSchema = object({
   id: string().optional(),
+  name: string({
+    required_error: "Prompt name is required",
+  }),
   text: string({
     required_error: "Prompt text is required",
   }),
@@ -21,16 +24,16 @@ const getAllPromptsForConversationSchema = object({
 
 export const promptRouter = createTRPCRouter({
   post: publicProcedure.input(postPromptSchema).mutation(({ ctx, input }) => {
-    const { text, isContextPrompt, conversationId, id } = input;
+    const { text, isContextPrompt, conversationId, id, name } = input;
 
     if (id) {
       return ctx.prisma.prompt.update({
         where: { id },
-        data: { text, isContextPrompt, conversationId },
+        data: { text, isContextPrompt, conversationId, name },
       });
     } else {
       return ctx.prisma.prompt.create({
-        data: { text, isContextPrompt, conversationId },
+        data: { text, isContextPrompt, conversationId, name },
       });
     }
   }),

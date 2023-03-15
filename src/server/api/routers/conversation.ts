@@ -5,7 +5,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 const createConversationSchema = object({
   name: string({
-    required_error: "Conversation text is required",
+    required_error: "Conversation name is required",
   }),
 });
 
@@ -31,7 +31,8 @@ export const conversationRouter = createTRPCRouter({
           // Create the default prompt for the new conversation
           return ctx.prisma.prompt.create({
             data: {
-              text: "New prompt...",
+              name: "New Prompt",
+              text: "",
               isContextPrompt: true,
               conversationId: conversation.id,
             },

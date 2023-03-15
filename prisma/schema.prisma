@@ -62,6 +62,7 @@ model VerificationToken {
 model Prompt {
     id                String       @id @default(cuid())
     text              String
+    name              String       @default("New Prompt")
     previuosPromptId  Int?
     nextPromptId      Int?
     isContextPrompt   Boolean      @default(false)

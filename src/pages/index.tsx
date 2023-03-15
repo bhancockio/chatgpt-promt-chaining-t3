@@ -1,14 +1,14 @@
 import { type Conversation, type Prompt } from "@prisma/client";
 import { type NextPage } from "next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ConversationContainer from "~/components/ConversationContainer";
 import ConversationSidebar from "~/components/ConversationSidebar";
 import PromptEditor from "~/components/PromptEditor";
-import PromptDetailView from "~/components/PromptEditor";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
-  const [currentPrompt, setCurrentPromt] = useState<Prompt>();
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [currentPrompt, setCurrentPrompt] = useState<Prompt>();
   const [currentConversation, setCurrentConversation] =
     useState<Conversation>();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -26,6 +26,29 @@ const Home: NextPage = () => {
     },
   });
 
+  api.prompt.getAllPromptsForConversation.useQuery(
+    { conversationId: currentConversation?.id || "" },
+    {
+      enabled: currentConversation?.id !== undefined,
+      onSuccess: (prompts) => {
+        console.log("prompts", prompts);
+        setPrompts(prompts);
+        if (prompts.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          setCurrentPrompt(prompts[0]);
+        }
+      },
+      onError: (error) => {
+        console.error(error);
+        setPrompts([]);
+      },
+    }
+  );
+
+  useEffect(() => {
+    console.log("current prompt", currentPrompt);
+  }, [currentPrompt]);
+
   return (
     <div className="flex flex-row">
       <div className="w-1/6">
@@ -37,12 +60,14 @@ const Home: NextPage = () => {
       </div>
       <div className="w-3/6">
         <ConversationContainer
-          setCurrentPrompt={setCurrentPromt}
+          setCurrentPrompt={setCurrentPrompt}
           currentConversation={currentConversation}
+          setPrompts={setPrompts}
+          prompts={prompts}
         />
       </div>
       <div className="border-gray-80 w-2/6 border-0 border-l-2 text-black">
-        <PromptEditor prompt={currentPrompt} />
+        <PromptEditor prompt={currentPrompt} setPrompts={setPrompts} />
       </div>
     </div>
   );
