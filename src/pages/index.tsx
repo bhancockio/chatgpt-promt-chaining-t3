@@ -41,7 +41,7 @@ const Home: NextPage = () => {
           currentConversation={currentConversation}
         />
       </div>
-      <div className="w-2/6 bg-gray-100 text-black">
+      <div className="border-gray-80 w-2/6 border-0 border-l-2 text-black">
         <PromptEditor prompt={currentPrompt} />
       </div>
     </div>

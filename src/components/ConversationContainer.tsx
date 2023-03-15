@@ -36,6 +36,9 @@ function ConversationContainer({
       console.log("Successfully created conversation", newPrompt);
       setPrompts((prompts) => prompts.concat(newPrompt));
     },
+    onError: (error) => {
+      console.log("response", error);
+    },
   });
 
   const createPrompt = () => {
@@ -45,22 +48,14 @@ function ConversationContainer({
         isContextPrompt: prompts.length === 0,
         conversationId: currentConversation?.id,
       };
-      promptMutation.mutate(newPrompt, {
-        onSuccess: (promptResponse) => {
-          console.log("response", promptResponse);
-          setPrompts((p) => p.concat(promptResponse));
-        },
-        onError: (error) => {
-          console.log("response", error);
-        },
-      });
+      promptMutation.mutate(newPrompt);
     }
   };
 
   return (
     <div className="flex flex-col justify-center align-middle">
       {/* HEADER */}
-      <div className="w-full bg-gray-800 p-3 text-center text-white">
+      <div className="border-r-1 border-l-1 w-full border border-t-0 border-b-0 border-white bg-gray-800 p-3 text-center text-white">
         <h3 className="text-xl">Conversation Viewer</h3>
       </div>
       {/* BODY */}
@@ -77,7 +72,7 @@ function ConversationContainer({
               // eslint-disable-next-line @typescript-eslint/no-unsafe-call
               setCurrentPrompt(prompt);
             }}
-            className="cursor-pointer rounded-md border border-black/20 bg-gray-100 p-4 text-center"
+            className="mb-8 cursor-pointer rounded-md border border-black/20 bg-gray-100 p-4 text-center"
           >
             {prompt.text}
           </div>
