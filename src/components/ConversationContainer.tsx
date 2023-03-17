@@ -1,19 +1,16 @@
-import { type Prompt, type Conversation } from "@prisma/client";
-import { type Dispatch, type SetStateAction } from "react";
+import { type Prompt } from "@prisma/client";
+import { useContext } from "react";
 import { api } from "~/utils/api";
 import { AiOutlinePlusCircle, AiOutlineArrowDown } from "react-icons/ai";
+import {
+  ConversationContext,
+  type ConversationContextType,
+} from "~/context/conversationContext";
 
-function ConversationContainer({
-  currentConversation,
-  setCurrentPrompt,
-  setPrompts,
-  prompts,
-}: {
-  currentConversation: Conversation | null;
-  setCurrentPrompt: Dispatch<SetStateAction<Prompt | null>>;
-  setPrompts: Dispatch<SetStateAction<Prompt[]>>;
-  prompts: Prompt[];
-}) {
+function ConversationContainer() {
+  const { currentConversation, setCurrentPrompt, setPrompts, prompts } =
+    useContext(ConversationContext) as ConversationContextType;
+
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
   const promptMutation = api.prompt.post.useMutation({
     onSuccess: (newPrompt: Prompt) => {

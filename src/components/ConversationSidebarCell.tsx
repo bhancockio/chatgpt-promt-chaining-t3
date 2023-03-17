@@ -1,20 +1,23 @@
 import { type Conversation } from "@prisma/client";
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { useState, useContext } from "react";
 import { api } from "~/utils/api";
 import { BsPencil, BsTrash, BsCheck } from "react-icons/bs";
 import { MdOutlineCancel } from "react-icons/md";
+import {
+  ConversationContext,
+  type ConversationContextType,
+} from "~/context/conversationContext";
 
 function ConversationSidebarCell({
   conversation,
-  setCurrentConversation,
-  setConversations,
   isCurrentConversation,
 }: {
   conversation: Conversation;
-  setCurrentConversation: Dispatch<SetStateAction<Conversation | null>>;
-  setConversations: Dispatch<SetStateAction<Conversation[]>>;
   isCurrentConversation: boolean;
 }) {
+  const { setCurrentConversation, setConversations } = useContext(
+    ConversationContext
+  ) as ConversationContextType;
   const [isEditState, setIsEditState] = useState(false);
   const [isDeleteState, setIsDeleteState] = useState(false);
   const [newConversationName, setNewConversationName] = useState<string>("");
@@ -62,6 +65,7 @@ function ConversationSidebarCell({
     <div
       key={conversation.id}
       className="flex flex-row items-center justify-between bg-gray-800 hover:bg-gray-500/10"
+      onClick={() => setCurrentConversation(conversation)}
     >
       {isEditState && (
         <input
@@ -77,15 +81,12 @@ function ConversationSidebarCell({
       )}
 
       {!isDeleteState && !isEditState && (
-        <a
-          className="group relative flex cursor-pointer items-center gap-3 rounded-md py-3 px-3 pr-14 "
-          onClick={() => setCurrentConversation(conversation)}
-        >
+        <a className="group relative flex cursor-pointer items-center gap-3 rounded-md py-3 px-3 pr-14 ">
           {conversation.name}
         </a>
       )}
 
-      {isCurrentConversation && (
+      {conversation && (
         <div className="flex flex-row gap-2">
           {isEditState && (
             <>

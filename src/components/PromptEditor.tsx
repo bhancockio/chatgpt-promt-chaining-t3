@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type Prompt } from "@prisma/client";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { boolean, object, string, type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { api } from "~/utils/api";
+import {
+  ConversationContext,
+  type ConversationContextType,
+} from "~/context/conversationContext";
 
 const promptSchema = object({
   name: string({
@@ -15,20 +20,15 @@ const promptSchema = object({
   }),
   matrixParametersX: string().optional(),
   matrixParametersY: string().optional(),
-  isContextPrompt: boolean(),
+  isContextPrompt: string(),
 });
 
 type PromptSchema = z.infer<typeof promptSchema>;
 
-function PromptEditor({
-  prompt,
-  setPrompts,
-  setCurrentPrompt,
-}: {
-  prompt: Prompt | null;
-  setPrompts: Dispatch<SetStateAction<Prompt[]>>;
-  setCurrentPrompt: Dispatch<SetStateAction<Prompt | null>>;
-}) {
+function PromptEditor() {
+  const { setPrompts, setCurrentPrompt, currentPrompt } = useContext(
+    ConversationContext
+  ) as ConversationContextType;
   const {
     register,
     handleSubmit,
@@ -38,7 +38,9 @@ function PromptEditor({
     resolver: zodResolver(promptSchema),
   });
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const [isContextPrompt, setIsContextPrompt] = useState<boolean>();
+  const [isContextPrompt, setIsContextPrompt] = useState<boolean>(
+    !!currentPrompt?.isContextPrompt
+  );
 
   const postPromptMutation = api.prompt.post.useMutation({
     onSuccess: (newPrompt: Prompt) => {
@@ -69,27 +71,40 @@ function PromptEditor({
   });
 
   const onSubmit: SubmitHandler<PromptSchema> = (formData) => {
-    if (prompt) {
+    if (currentPrompt) {
       const data = {
-        conversationId: prompt.conversationId,
-        id: prompt.id,
-        ...formData,
+        conversationId: currentPrompt.conversationId,
+        id: currentPrompt.id,
+        name: formData.name,
+        matrixParametersX: formData.matrixParametersX,
+        matrixParametersY: formData.matrixParametersY,
+        text: formData.text,
+        isContextPrompt: isContextPrompt,
       };
-      console.log("data", data);
+
       postPromptMutation.mutate(data);
     }
   };
 
   const deletePrompt = () => {
-    if (prompt) {
-      deletePromptMutation.mutate({ id: prompt.id });
+    if (currentPrompt) {
+      deletePromptMutation.mutate({ id: currentPrompt.id });
     }
   };
 
   useEffect(() => {
-    setIsContextPrompt(prompt?.isContextPrompt);
-    reset(prompt as PromptSchema);
-  }, [prompt, reset]);
+    if (currentPrompt) {
+      console.log("isContextPrompt", currentPrompt.isContextPrompt);
+      setIsContextPrompt(currentPrompt.isContextPrompt);
+      reset({
+        name: currentPrompt.name,
+        text: currentPrompt.text,
+        matrixParametersX: currentPrompt.matrixParametersX,
+        matrixParametersY: currentPrompt.matrixParametersY,
+        isContextPrompt: currentPrompt.isContextPrompt ? "true" : "false",
+      } as PromptSchema);
+    }
+  }, [currentPrompt, reset]);
 
   return (
     <div className="flex flex-col ">
@@ -97,7 +112,7 @@ function PromptEditor({
         <h3 className="text-xl">Prompt</h3>
       </div>
 
-      {prompt ? (
+      {currentPrompt ? (
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="m-5 flex flex-col align-middle"
@@ -187,7 +202,7 @@ function PromptEditor({
                 id="isContextPrompt"
                 type="checkbox"
                 checked={isContextPrompt}
-                onClick={() => setIsContextPrompt((current) => !current)}
+                onChange={() => setIsContextPrompt((current) => !current)}
                 className="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
               />
             </div>

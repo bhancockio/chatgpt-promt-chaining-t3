@@ -1,20 +1,19 @@
-import { type Conversation } from "@prisma/client";
-import { type Dispatch, type SetStateAction } from "react";
+import { useContext } from "react";
+import {
+  ConversationContext,
+  type ConversationContextType,
+} from "~/context/conversationContext";
 import { api } from "~/utils/api";
 
 import ConversationSidebarCell from "./ConversationSidebarCell";
 
-function ConversationSidebar({
-  conversations,
-  setCurrentConversation,
-  setConversations,
-  currentConversation,
-}: {
-  conversations: Conversation[];
-  setCurrentConversation: Dispatch<SetStateAction<Conversation | null>>;
-  setConversations: Dispatch<SetStateAction<Conversation[]>>;
-  currentConversation: Conversation | null;
-}) {
+function ConversationSidebar() {
+  const {
+    conversations,
+    setCurrentConversation,
+    setConversations,
+    currentConversation,
+  } = useContext(ConversationContext) as ConversationContextType;
   const conversationMutation = api.conversation.create.useMutation({
     onSuccess: (resp) => {
       if (resp) {
@@ -51,8 +50,6 @@ function ConversationSidebar({
             <ConversationSidebarCell
               key={conversation.id}
               conversation={conversation}
-              setConversations={setConversations}
-              setCurrentConversation={setCurrentConversation}
               isCurrentConversation={
                 conversation.id === currentConversation?.id
               }

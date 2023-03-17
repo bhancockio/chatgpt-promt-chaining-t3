@@ -1,5 +1,4 @@
 import { type Prompt } from "@prisma/client";
-import React from "react";
 
 function PromptDetailView({
   currentPrompt,

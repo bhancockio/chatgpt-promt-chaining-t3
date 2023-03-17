@@ -1,91 +1,32 @@
-import { type Conversation, type Prompt } from "@prisma/client";
 import { type NextPage } from "next";
-import { useEffect, useState } from "react";
 import ConversationContainer from "~/components/ConversationContainer";
 import ConversationResults from "~/components/ConversationResultList";
 import ConversationSidebar from "~/components/ConversationSidebar";
 import PromptEditor from "~/components/PromptEditor";
-import { api } from "~/utils/api";
+import ConversationProvider from "~/context/conversationContext";
 
 const Home: NextPage = () => {
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
-  const [currentConversation, setCurrentConversation] =
-    useState<Conversation | null>(null);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [conversationResultList, setConversationResultList] = useState([]);
-
-  api.conversation.getall.useQuery(undefined, {
-    onSuccess: (conversations: Conversation[]) => {
-      setConversations(conversations);
-      if (conversations.length > 0) {
-        const firstConversation: Conversation | null = conversations[0] || null;
-        setCurrentConversation(firstConversation);
-      }
-    },
-    onError: (error) => {
-      setConversations([]);
-      console.error(error);
-    },
-  });
-
-  api.prompt.getAllPromptsForConversation.useQuery(
-    { conversationId: currentConversation?.id || "" },
-    {
-      enabled: currentConversation?.id !== undefined,
-      onSuccess: (prompts) => {
-        console.log("prompts", prompts);
-        setPrompts(prompts);
-        if (prompts.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          const prompt: Prompt | null = prompts[0] || null;
-          setCurrentPrompt(prompt);
-        }
-      },
-      onError: (error) => {
-        console.error(error);
-        setPrompts([]);
-      },
-    }
-  );
-
-  useEffect(() => {
-    console.log("current prompt", currentPrompt);
-  }, [currentPrompt]);
-
   return (
-    <div className="flex flex-row">
-      <div className="w-1/6">
-        <ConversationSidebar
-          conversations={conversations}
-          setCurrentConversation={setCurrentConversation}
-          setConversations={setConversations}
-          currentConversation={currentConversation}
-        />
-      </div>
-      <div className="h-screen w-5/6">
-        <div className="flex h-3/4 flex-row">
-          <div className="w-2/3">
-            <ConversationContainer
-              setCurrentPrompt={setCurrentPrompt}
-              currentConversation={currentConversation}
-              setPrompts={setPrompts}
-              prompts={prompts}
-            />
+    <ConversationProvider>
+      <div className="flex flex-row">
+        <div className="w-1/6">
+          <ConversationSidebar />
+        </div>
+        <div className="h-screen w-5/6">
+          <div className="flex h-3/4 flex-row">
+            <div className="w-2/3">
+              <ConversationContainer />
+            </div>
+            <div className="border-gray-80 w-1/3 border-0 border-l-2 text-black">
+              <PromptEditor />
+            </div>
           </div>
-          <div className="border-gray-80 w-1/3 border-0 border-l-2 text-black">
-            <PromptEditor
-              prompt={currentPrompt}
-              setPrompts={setPrompts}
-              setCurrentPrompt={setCurrentPrompt}
-            />
+          <div className="h-1/4">
+            <ConversationResults />
           </div>
         </div>
-        <div className="h-1/4">
-          <ConversationResults />
-        </div>
       </div>
-    </div>
+    </ConversationProvider>
   );
 };
 
