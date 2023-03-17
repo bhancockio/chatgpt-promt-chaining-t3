@@ -71,7 +71,11 @@ const Home: NextPage = () => {
             />
           </div>
           <div className="border-gray-80 w-1/3 border-0 border-l-2 text-black">
-            <PromptEditor prompt={currentPrompt} setPrompts={setPrompts} />
+            <PromptEditor
+              prompt={currentPrompt}
+              setPrompts={setPrompts}
+              setCurrentPrompt={setCurrentPrompt}
+            />
           </div>
         </div>
         <div className="h-1/4">

@@ -19,6 +19,10 @@ const postPromptSchema = object({
   order: number().default(1),
 });
 
+const deletePromptSchema = object({
+  id: string(),
+});
+
 const getAllPromptsForConversationSchema = object({
   conversationId: string({
     required_error: "Conversation ID is required",
@@ -72,5 +76,12 @@ export const promptRouter = createTRPCRouter({
       const { conversationId } = input;
 
       return prisma.prompt.findMany({ where: { conversationId } });
+    }),
+  delete: publicProcedure
+    .input(deletePromptSchema)
+    .mutation(({ ctx, input }) => {
+      const { id } = input;
+
+      return ctx.prisma.prompt.delete({ where: { id } });
     }),
 });

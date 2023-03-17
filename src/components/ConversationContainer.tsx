@@ -1,6 +1,7 @@
 import { type Prompt, type Conversation } from "@prisma/client";
 import { type Dispatch, type SetStateAction } from "react";
 import { api } from "~/utils/api";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 
 function ConversationContainer({
   currentConversation,
@@ -43,7 +44,7 @@ function ConversationContainer({
         <h3 className="text-xl">Conversation Viewer</h3>
       </div>
       {/* BODY */}
-      <div className="m-5 flex flex-col">
+      <div className="m-5 flex flex-col ">
         {prompts.length === 0 && (
           <div>
             <h1>No prompts found.</h1>
@@ -63,8 +64,11 @@ function ConversationContainer({
             {/* TODO: Place a down arrow here */}
           </div>
         ))}
-        <button onClick={createPrompt}>
-          Create Prompt <span>+</span>
+        <button
+          className="mx-auto flex flex-row items-center gap-2 rounded-md border-2 px-2 py-3"
+          onClick={createPrompt}
+        >
+          Create Prompt <AiOutlinePlusCircle />
         </button>
       </div>
     </div>

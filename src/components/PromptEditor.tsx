@@ -23,9 +23,11 @@ type PromptSchema = z.infer<typeof promptSchema>;
 function PromptEditor({
   prompt,
   setPrompts,
+  setCurrentPrompt,
 }: {
   prompt: Prompt | undefined;
   setPrompts: Dispatch<SetStateAction<Prompt[]>>;
+  setCurrentPrompt: Dispatch<SetStateAction<Prompt>>;
 }) {
   const {
     register,
@@ -38,7 +40,7 @@ function PromptEditor({
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const [isContextPrompt, setIsContextPrompt] = useState<boolean>();
 
-  const promptMutation = api.prompt.post.useMutation({
+  const postPromptMutation = api.prompt.post.useMutation({
     onSuccess: (newPrompt: Prompt) => {
       console.log("Successfully updated", newPrompt);
       setPrompts((oldPrompts) =>
@@ -52,6 +54,20 @@ function PromptEditor({
     },
   });
 
+  const deletePromptMutation = api.prompt.delete.useMutation({
+    onSuccess: (deletedPrompt: Prompt) => {
+      setPrompts((prompts) =>
+        prompts.filter((p) => p.id !== deletedPrompt?.id)
+      );
+      setCurrentPrompt(null);
+      console.log("response", deletedPrompt);
+    },
+    onError: (error) => {
+      console.error("Error deleting prompt");
+      console.error(error);
+    },
+  });
+
   const onSubmit: SubmitHandler<PromptSchema> = (formData) => {
     if (prompt) {
       const data = {
@@ -60,7 +76,13 @@ function PromptEditor({
         ...formData,
       };
       console.log("data", data);
-      promptMutation.mutate(data);
+      postPromptMutation.mutate(data);
+    }
+  };
+
+  const deletePrompt = () => {
+    if (prompt) {
+      deletePromptMutation.mutate({ id: prompt.id });
     }
   };
 
@@ -75,112 +97,123 @@ function PromptEditor({
         <h3 className="text-xl">Prompt</h3>
       </div>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="m-5 flex flex-col align-middle"
-      >
-        <div className="relative mb-6">
-          <input
-            type="text"
-            className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
-            id="name"
-            {...register("name")}
-          />
-          <label
-            htmlFor="name"
-            className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500"
-          >
-            Name
-          </label>
-          {errors.name && (
-            <span style={{ color: "red" }}>{errors.name.message}</span>
-          )}
-        </div>
-        <div className="relative mb-6">
-          <textarea
-            className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
-            id="text"
-            rows={5}
-            {...register("text")}
-          />
-          <label
-            htmlFor="text"
-            className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500"
-          >
-            Prompt Text
-          </label>
-          {errors.text && (
-            <span style={{ color: "red" }}>{errors.text.message}</span>
-          )}
-        </div>
-        <div className="relative mb-6">
-          <input
-            type="text"
-            className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
-            id="name"
-            {...register("matrixParametersX")}
-          />
-          <label
-            htmlFor="matrixParametersX"
-            className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500"
-          >
-            X Parameters
-          </label>
-          <span className="text-xs text-gray-400">
-            Create comma separated list of formats (actionable, listicle, etc.)
-          </span>
-          {errors.name && (
-            <span style={{ color: "red" }}>
-              {errors.matrixParametersX?.message}
-            </span>
-          )}
-        </div>
-        <div className="relative mb-6">
-          <input
-            type="text"
-            className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
-            id="matrixParametersY"
-            {...register("matrixParametersY")}
-          />
-          <label
-            htmlFor="matrixParametersY"
-            className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500"
-          >
-            Y Parameters
-          </label>
-          {errors.name && (
-            <span style={{ color: "red" }}>
-              {errors.matrixParametersY?.message}
-            </span>
-          )}
-          <span className="text-xs text-gray-400">
-            Create comma separated list of topics (business, habits, etc.)
-          </span>
-        </div>
-        <div className="mb-6 flex items-start">
-          <div className="flex h-5 items-center">
-            <input
-              id="isContextPrompt"
-              type="checkbox"
-              checked={isContextPrompt}
-              onClick={() => setIsContextPrompt((current) => !current)}
-              className="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-            />
-          </div>
-          <label
-            htmlFor="isContextPrompt"
-            className="ml-2 text-sm  text-gray-900 dark:text-gray-300"
-          >
-            Context Prompt
-          </label>
-        </div>
-        <button
-          className="cursor-pointer rounded-md border-2 border-gray-800 px-5 py-3 hover:bg-gray-800 hover:text-white"
-          type="submit"
+      {prompt ? (
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="m-5 flex flex-col align-middle"
         >
-          Submit
-        </button>
-      </form>
+          <div className="relative mb-6">
+            <input
+              type="text"
+              className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+              id="name"
+              {...register("name")}
+            />
+            <label
+              htmlFor="name"
+              className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500"
+            >
+              Name
+            </label>
+            {errors.name && (
+              <span style={{ color: "red" }}>{errors.name.message}</span>
+            )}
+          </div>
+          <div className="relative mb-6">
+            <textarea
+              className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+              id="text"
+              rows={5}
+              {...register("text")}
+            />
+            <label
+              htmlFor="text"
+              className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500"
+            >
+              Prompt Text
+            </label>
+            {errors.text && (
+              <span style={{ color: "red" }}>{errors.text.message}</span>
+            )}
+          </div>
+          <div className="relative mb-6">
+            <input
+              type="text"
+              className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+              id="name"
+              {...register("matrixParametersX")}
+            />
+            <label
+              htmlFor="matrixParametersX"
+              className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500"
+            >
+              X Parameters
+            </label>
+            <span className="text-xs text-gray-400">
+              Create comma separated list of formats (actionable, listicle,
+              etc.)
+            </span>
+            {errors.name && (
+              <span style={{ color: "red" }}>
+                {errors.matrixParametersX?.message}
+              </span>
+            )}
+          </div>
+          <div className="relative mb-6">
+            <input
+              type="text"
+              className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+              id="matrixParametersY"
+              {...register("matrixParametersY")}
+            />
+            <label
+              htmlFor="matrixParametersY"
+              className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500"
+            >
+              Y Parameters
+            </label>
+            {errors.name && (
+              <span style={{ color: "red" }}>
+                {errors.matrixParametersY?.message}
+              </span>
+            )}
+            <span className="text-xs text-gray-400">
+              Create comma separated list of topics (business, habits, etc.)
+            </span>
+          </div>
+          <div className="mb-6 flex items-start">
+            <div className="flex h-5 items-center">
+              <input
+                id="isContextPrompt"
+                type="checkbox"
+                checked={isContextPrompt}
+                onClick={() => setIsContextPrompt((current) => !current)}
+                className="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+              />
+            </div>
+            <label
+              htmlFor="isContextPrompt"
+              className="ml-2 text-sm  text-gray-900 dark:text-gray-300"
+            >
+              Context Prompt
+            </label>
+          </div>
+          <button
+            className="mb-3 cursor-pointer rounded-md border-2 border-gray-800 px-5 py-3 hover:bg-gray-800 hover:text-white"
+            type="submit"
+          >
+            Save
+          </button>
+          <button
+            onClick={deletePrompt}
+            className="cursor-pointer rounded-md border-2 border-red-500 px-5 py-3 hover:bg-red-500 hover:text-white"
+          >
+            Delete
+          </button>
+        </form>
+      ) : (
+        <div>No Prompt Selected.</div>
+      )}
     </div>
   );
 }
