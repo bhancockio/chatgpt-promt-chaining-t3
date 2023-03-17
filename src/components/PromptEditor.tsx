@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type Prompt } from "@prisma/client";
-import { Controller, useForm, type SubmitHandler } from "react-hook-form";
-import { boolean, object, string, type z } from "zod";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { object, string, type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState, useContext } from "react";
 import { api } from "~/utils/api";
@@ -75,6 +75,7 @@ function PromptEditor() {
       const data = {
         conversationId: currentPrompt.conversationId,
         id: currentPrompt.id,
+        order: currentPrompt.order,
         name: formData.name,
         matrixParametersX: formData.matrixParametersX,
         matrixParametersY: formData.matrixParametersY,

@@ -16,7 +16,7 @@ const postPromptSchema = object({
   }),
   matrixParametersX: string().optional(),
   matrixParametersY: string().optional(),
-  order: number().default(1),
+  order: number(),
 });
 
 const deletePromptSchema = object({
@@ -31,41 +31,16 @@ const getAllPromptsForConversationSchema = object({
 
 export const promptRouter = createTRPCRouter({
   post: publicProcedure.input(postPromptSchema).mutation(({ ctx, input }) => {
-    const {
-      text,
-      isContextPrompt,
-      conversationId,
-      id,
-      name,
-      order,
-      matrixParametersX,
-      matrixParametersY,
-    } = input;
+    const { id } = input;
 
     if (id) {
       return ctx.prisma.prompt.update({
         where: { id },
-        data: {
-          text,
-          isContextPrompt,
-          conversationId,
-          name,
-          order,
-          matrixParametersX,
-          matrixParametersY,
-        },
+        data: input,
       });
     } else {
       return ctx.prisma.prompt.create({
-        data: {
-          text,
-          isContextPrompt,
-          conversationId,
-          name,
-          order,
-          matrixParametersX,
-          matrixParametersY,
-        },
+        data: input,
       });
     }
   }),

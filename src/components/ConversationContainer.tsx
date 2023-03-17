@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { type Prompt } from "@prisma/client";
 import { useContext } from "react";
 import { api } from "~/utils/api";
@@ -11,7 +12,6 @@ function ConversationContainer() {
   const { currentConversation, setCurrentPrompt, setPrompts, prompts } =
     useContext(ConversationContext) as ConversationContextType;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
   const promptMutation = api.prompt.post.useMutation({
     onSuccess: (newPrompt: Prompt) => {
       console.log("Successfully created conversation", newPrompt);
@@ -24,11 +24,20 @@ function ConversationContainer() {
 
   const createPrompt = () => {
     if (currentConversation) {
+      const latestOrder: number = prompts.reduce(
+        (acc: number, prompt: Prompt) => {
+          return prompt.order > acc ? prompt.order : acc;
+        },
+        -1
+      );
       const newPrompt = {
         name: "New Prompt",
         text: "",
         isContextPrompt: prompts.length === 0,
         conversationId: currentConversation?.id,
+        matrixParametersX: "",
+        matrixParametersY: "",
+        order: latestOrder + 1,
       };
       promptMutation.mutate(newPrompt);
     }
