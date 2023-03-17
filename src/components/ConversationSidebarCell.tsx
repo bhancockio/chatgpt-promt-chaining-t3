@@ -86,7 +86,7 @@ function ConversationSidebarCell({
         </a>
       )}
 
-      {conversation && (
+      {isCurrentConversation && (
         <div className="flex flex-row gap-2">
           {isEditState && (
             <>

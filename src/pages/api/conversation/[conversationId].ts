@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import type { Prompt } from "@prisma/client";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { prisma } from "../../../server/db";
-import { Configuration, OpenAIApi } from "openai";
+import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
+
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
 interface ConversationRequest extends NextApiRequest {
   query: {
@@ -10,10 +16,12 @@ interface ConversationRequest extends NextApiRequest {
   };
 }
 
-type OpenAPIPrompt = {
-  role: "system" | "user" | "assistant";
-  content: string;
+type OpenAPIConversation = {
+  prompts: ChatCompletionRequestMessage[];
 };
+
+const X_PARAMETER_KEY = "{X}";
+const Y_PARAMETER_KEY = "{Y}";
 
 export default async function handler(
   req: ConversationRequest,
@@ -34,14 +42,14 @@ export default async function handler(
       .json(promptValidationResults.message);
   }
 
-  // TODO: Convert all prompts into conversations
-  // formatPromptsForOpenAI(prompts);
+  // Convert all prompts into chatGPT conversations
+  const conversations = formatPromptsForOpenAI(prompts);
 
-  //TODO: Send conversations to openai
+  // Send conversations to openai
+  const results = executeAllConversations(conversations);
 
-  // TODO: return results
-
-  return res.status(200).json({ prompts: prompts });
+  // return results
+  return res.status(200).json(JSON.stringify(results));
 }
 
 type validationResponse = {
@@ -90,11 +98,181 @@ const isValidRequest = (prompts: Prompt[]): validationResponse => {
     };
   }
 
+  // Validate X and Y parameters in prompts
+  for (const prompt of prompts) {
+    const xMatrixValidation = isValidMatrixParameter(
+      prompt.matrixParametersX || "",
+      X_PARAMETER_KEY,
+      prompt.text
+    );
+
+    const yMatrixValidation = isValidMatrixParameter(
+      prompt.matrixParametersY || "",
+      Y_PARAMETER_KEY,
+      prompt.text
+    );
+
+    if (!xMatrixValidation.isValidRequest) {
+      return xMatrixValidation;
+    }
+    if (!yMatrixValidation.isValidRequest) {
+      return yMatrixValidation;
+    }
+  }
+
+  return { isValidRequest: true };
+};
+
+const isValidMatrixParameter = (
+  parameters: string,
+  key: string,
+  prompt: string
+) => {
+  // If the user didn't include parameters, we can skip the validation.
+  if (parameters.length === 0) {
+    return {
+      isValidRequest: true,
+    };
+  }
+
+  // Did the user include the key in their prompt
+  if (!prompt.includes(key)) {
+    return {
+      isValidRequest: false,
+      message: `To use your parameters (${parameters}) you need to include ${key} in your prompt.`,
+      code: 400,
+    };
+  }
+
   return { isValidRequest: true };
 };
 
 const formatPromptsForOpenAI = (prompts: Prompt[]) => {
-  const conversation = [];
+  let conversations: OpenAPIConversation[] = [];
 
-  return prompts;
+  for (const prompt of prompts) {
+    // If there are not any conversations, we need to create the first one
+    if (conversations.length === 0) {
+      const conversation: OpenAPIConversation = {
+        prompts: [],
+      };
+      conversations.push(conversation);
+    }
+
+    if (prompt.isContextPrompt) {
+      for (const conversation of conversations) {
+        conversation.prompts.push({
+          content: prompt.text,
+          role: "system",
+        });
+      }
+    } else {
+      const { text, matrixParametersX, matrixParametersY } = prompt;
+      const messages: string[] = createPromptsBasedOnParameters(
+        text,
+        matrixParametersX || "",
+        matrixParametersY || ""
+      );
+      const newConversations: OpenAPIConversation[] = [];
+
+      for (const message of messages) {
+        for (const conversation of conversations) {
+          const newConversation = JSON.parse(
+            JSON.stringify(conversation)
+          ) as OpenAPIConversation;
+          newConversation.prompts.push({
+            role: "user",
+            content: message,
+          });
+          newConversations.push(newConversation);
+        }
+      }
+      conversations = newConversations;
+    }
+  }
+
+  return conversations;
+};
+
+const createPromptsBasedOnParameters = (
+  text: string,
+  xParameters: string,
+  yParameters: string
+): string[] => {
+  const messages: string[] = [];
+  // Case 1: The user doesn't include X or Y parameters
+  if (xParameters.length === 0 && yParameters.length === 0) {
+    messages.push(text);
+  }
+  // Case 2: The user only includes X parameters
+  else if (xParameters.length === 0) {
+    for (const x of xParameters.split(",")) {
+      if (x === "") {
+        continue;
+      }
+      const newMessage = text.replace(X_PARAMETER_KEY, x);
+      messages.push(newMessage);
+    }
+  }
+  // Case 3: The user only includes Y parameters
+  else if (yParameters.length === 0) {
+    for (const y of yParameters.split(",")) {
+      if (y === "") {
+        continue;
+      }
+      const newMessage = text.replace(Y_PARAMETER_KEY, y);
+      messages.push(newMessage);
+    }
+  }
+  // Case 4: The user includes X & Y parameters
+  else {
+    for (const x of xParameters.split(",")) {
+      for (const y of yParameters.split(",")) {
+        if (x === "" || y === "") {
+          continue;
+        }
+        const newMessage = text
+          .replace(X_PARAMETER_KEY, x)
+          .replace(Y_PARAMETER_KEY, y);
+        messages.push(newMessage);
+      }
+    }
+  }
+
+  return messages;
+};
+
+const executeAllConversations = async (
+  conversations: OpenAPIConversation[]
+) => {
+  console.log("Executing conversations");
+  let finalResult = "";
+  for (const conversation of conversations) {
+    const messages: ChatCompletionRequestMessage[] = [];
+    for (const prompt of conversation.prompts) {
+      console.log("prompt", prompt);
+      messages.push(prompt);
+      try {
+        const completion = await openai.createChatCompletion({
+          messages: messages,
+          model: "gpt-3.5-turbo",
+        });
+        const message = completion.data.choices[0]?.message;
+        console.log("openai response", message);
+        if (message) {
+          messages.push(message);
+        } else {
+          throw new Error("Open AI didn't respond with a message.", message);
+        }
+      } catch (error) {
+        console.error("Error with OpenAI API");
+        console.error(error);
+      }
+    }
+
+    // Grab final response
+    const lastmessage = messages[messages.length - 1]?.content || "";
+    finalResult = finalResult.concat(lastmessage, " ");
+  }
+  return finalResult;
 };

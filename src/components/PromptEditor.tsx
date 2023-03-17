@@ -148,6 +148,7 @@ function PromptEditor() {
             >
               Prompt Text
             </label>
+
             {errors.text && (
               <span style={{ color: "red" }}>{errors.text.message}</span>
             )}
