@@ -1,4 +1,4 @@
-import { boolean, object, string, z } from "zod";
+import { boolean, object, string, number } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
@@ -14,6 +14,9 @@ const postPromptSchema = object({
   conversationId: string({
     required_error: "Conversation ID text is required",
   }),
+  matrixParametersX: string().optional(),
+  matrixParametersY: string().optional(),
+  order: number().default(1),
 });
 
 const getAllPromptsForConversationSchema = object({
@@ -24,16 +27,41 @@ const getAllPromptsForConversationSchema = object({
 
 export const promptRouter = createTRPCRouter({
   post: publicProcedure.input(postPromptSchema).mutation(({ ctx, input }) => {
-    const { text, isContextPrompt, conversationId, id, name } = input;
+    const {
+      text,
+      isContextPrompt,
+      conversationId,
+      id,
+      name,
+      order,
+      matrixParametersX,
+      matrixParametersY,
+    } = input;
 
     if (id) {
       return ctx.prisma.prompt.update({
         where: { id },
-        data: { text, isContextPrompt, conversationId, name },
+        data: {
+          text,
+          isContextPrompt,
+          conversationId,
+          name,
+          order,
+          matrixParametersX,
+          matrixParametersY,
+        },
       });
     } else {
       return ctx.prisma.prompt.create({
-        data: { text, isContextPrompt, conversationId, name },
+        data: {
+          text,
+          isContextPrompt,
+          conversationId,
+          name,
+          order,
+          matrixParametersX,
+          matrixParametersY,
+        },
       });
     }
   }),

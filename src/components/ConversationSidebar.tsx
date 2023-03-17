@@ -33,7 +33,7 @@ function ConversationSidebar({
   };
 
   return (
-    <div className="dark flex h-screen flex-col bg-gray-900 p-2 text-sm text-gray-100">
+    <div className="dark flex h-screen flex-col bg-gray-800 p-2 text-sm text-gray-100">
       <button
         onClick={createConversation}
         className="mb-2 flex flex-shrink-0 cursor-pointer items-center gap-3 rounded-md border border-white/20 py-3 px-3 text-sm text-white transition-colors duration-200 hover:bg-gray-500/10"

@@ -63,8 +63,6 @@ model Prompt {
     id                String       @id @default(cuid())
     text              String
     name              String       @default("New Prompt")
-    previuosPromptId  Int?
-    nextPromptId      Int?
     isContextPrompt   Boolean      @default(false)
     matrixParametersX String?
     matrixParametersY String?
@@ -72,6 +70,7 @@ model Prompt {
     conversationId    String
     createdAt         DateTime     @default(now())
     updatedAt         DateTime     @default(now()) @updatedAt
+    order             Int
 }
 
 model Conversation {

@@ -39,7 +39,7 @@ function ConversationContainer({
   return (
     <div className="flex flex-col justify-center align-middle">
       {/* HEADER */}
-      <div className="border-r-1 border-l-1 w-full border border-t-0 border-b-0 border-white bg-gray-800 p-3 text-center text-white">
+      <div className="border-l-1 w-full border border-r-0 border-t-0 border-b-0 border-white bg-gray-800 p-3 text-center text-white">
         <h3 className="text-xl">Conversation Viewer</h3>
       </div>
       {/* BODY */}
@@ -50,15 +50,17 @@ function ConversationContainer({
           </div>
         )}
         {prompts.map((prompt) => (
-          <div
-            key={prompt.id}
-            onClick={() => {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-              setCurrentPrompt(prompt);
-            }}
-            className="mb-8 cursor-pointer rounded-md border border-black/20 bg-gray-100 p-4 text-center"
-          >
-            {prompt.name}
+          <div key={prompt.id}>
+            <div
+              onClick={() => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                setCurrentPrompt(prompt);
+              }}
+              className="mb-8 cursor-pointer rounded-md border border-black/20 bg-gray-100 p-4 text-center"
+            >
+              {prompt.name}
+            </div>
+            {/* TODO: Place a down arrow here */}
           </div>
         ))}
         <button onClick={createPrompt}>

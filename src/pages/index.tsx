@@ -2,6 +2,7 @@ import { type Conversation, type Prompt } from "@prisma/client";
 import { type NextPage } from "next";
 import { useEffect, useState } from "react";
 import ConversationContainer from "~/components/ConversationContainer";
+import ConversationResults from "~/components/ConversationResultList";
 import ConversationSidebar from "~/components/ConversationSidebar";
 import PromptEditor from "~/components/PromptEditor";
 import { api } from "~/utils/api";
@@ -12,6 +13,7 @@ const Home: NextPage = () => {
   const [currentConversation, setCurrentConversation] =
     useState<Conversation>();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversationResultList, setConversationResultList] = useState([]);
 
   api.conversation.getall.useQuery(undefined, {
     onSuccess: (resp) => {
@@ -58,16 +60,23 @@ const Home: NextPage = () => {
           setConversations={setConversations}
         />
       </div>
-      <div className="w-3/6">
-        <ConversationContainer
-          setCurrentPrompt={setCurrentPrompt}
-          currentConversation={currentConversation}
-          setPrompts={setPrompts}
-          prompts={prompts}
-        />
-      </div>
-      <div className="border-gray-80 w-2/6 border-0 border-l-2 text-black">
-        <PromptEditor prompt={currentPrompt} setPrompts={setPrompts} />
+      <div className="h-screen w-5/6">
+        <div className="flex h-3/4 flex-row">
+          <div className="w-2/3">
+            <ConversationContainer
+              setCurrentPrompt={setCurrentPrompt}
+              currentConversation={currentConversation}
+              setPrompts={setPrompts}
+              prompts={prompts}
+            />
+          </div>
+          <div className="border-gray-80 w-1/3 border-0 border-l-2 text-black">
+            <PromptEditor prompt={currentPrompt} setPrompts={setPrompts} />
+          </div>
+        </div>
+        <div className="h-1/4">
+          <ConversationResults />
+        </div>
       </div>
     </div>
   );

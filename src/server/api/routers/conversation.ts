@@ -35,6 +35,7 @@ export const conversationRouter = createTRPCRouter({
               text: "",
               isContextPrompt: true,
               conversationId: conversation.id,
+              order: 0,
             },
           });
         })
