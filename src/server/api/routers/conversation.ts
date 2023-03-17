@@ -3,7 +3,22 @@ import { object, string } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
+const deleteConversationSchema = object({
+  id: string({
+    required_error: "Conversation id is required",
+  }),
+});
+
 const createConversationSchema = object({
+  name: string({
+    required_error: "Conversation name is required",
+  }),
+});
+
+const updateConversationSchema = object({
+  id: string({
+    required_error: "Conversation id is required",
+  }),
   name: string({
     required_error: "Conversation name is required",
   }),
@@ -48,6 +63,13 @@ export const conversationRouter = createTRPCRouter({
           return null;
         });
     }),
+  update: publicProcedure
+    .input(updateConversationSchema)
+    .mutation(({ ctx, input }) => {
+      const { id, name } = input;
+
+      return ctx.prisma.conversation.update({ where: { id }, data: { name } });
+    }),
   getall: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.conversation.findMany();
   }),
@@ -60,5 +82,26 @@ export const conversationRouter = createTRPCRouter({
       return prisma.conversation.findUniqueOrThrow({
         where: { id: id },
       });
+    }),
+  delete: publicProcedure
+    .input(deleteConversationSchema)
+    .mutation(({ ctx, input }) => {
+      const { id } = input;
+
+      // Delete all cooresponding prompts for the conversation
+      ctx.prisma.prompt
+        .deleteMany({
+          where: { conversationId: id },
+        })
+        .then(() => {
+          console.log("successfully delete prompts for conversation", id);
+          return ctx.prisma.conversation.delete({ where: { id: id } });
+        })
+        .then(() => {
+          console.log("successfully delete conversation", id);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }),
 });

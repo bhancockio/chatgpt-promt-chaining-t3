@@ -60,6 +60,7 @@ const Home: NextPage = () => {
           conversations={conversations}
           setCurrentConversation={setCurrentConversation}
           setConversations={setConversations}
+          currentConversation={currentConversation}
         />
       </div>
       <div className="h-screen w-5/6">
