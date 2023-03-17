@@ -9,7 +9,7 @@ const Home: NextPage = () => {
   return (
     <ConversationProvider>
       <div className="flex flex-row">
-        <div className="w-1/6">
+        <div className="w-1/6 min-w-[200px]">
           <ConversationSidebar />
         </div>
         <div className="h-screen w-5/6">
