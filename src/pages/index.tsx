@@ -9,17 +9,18 @@ import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [currentPrompt, setCurrentPrompt] = useState<Prompt>();
+  const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
   const [currentConversation, setCurrentConversation] =
-    useState<Conversation>();
+    useState<Conversation | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [conversationResultList, setConversationResultList] = useState([]);
 
   api.conversation.getall.useQuery(undefined, {
-    onSuccess: (resp) => {
-      setConversations(resp);
-      if (resp.length > 0) {
-        setCurrentConversation(resp[0]);
+    onSuccess: (conversations: Conversation[]) => {
+      setConversations(conversations);
+      if (conversations.length > 0) {
+        const firstConversation: Conversation | null = conversations[0] || null;
+        setCurrentConversation(firstConversation);
       }
     },
     onError: (error) => {
@@ -37,7 +38,8 @@ const Home: NextPage = () => {
         setPrompts(prompts);
         if (prompts.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          setCurrentPrompt(prompts[0]);
+          const prompt: Prompt | null = prompts[0] || null;
+          setCurrentPrompt(prompt);
         }
       },
       onError: (error) => {

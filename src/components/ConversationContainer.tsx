@@ -1,7 +1,7 @@
 import { type Prompt, type Conversation } from "@prisma/client";
 import { type Dispatch, type SetStateAction } from "react";
 import { api } from "~/utils/api";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlinePlusCircle, AiOutlineArrowDown } from "react-icons/ai";
 
 function ConversationContainer({
   currentConversation,
@@ -9,8 +9,8 @@ function ConversationContainer({
   setPrompts,
   prompts,
 }: {
-  currentConversation: Conversation | undefined;
-  setCurrentPrompt: Dispatch<SetStateAction<Prompt | undefined>>;
+  currentConversation: Conversation | null;
+  setCurrentPrompt: Dispatch<SetStateAction<Prompt | null>>;
   setPrompts: Dispatch<SetStateAction<Prompt[]>>;
   prompts: Prompt[];
 }) {
@@ -51,17 +51,21 @@ function ConversationContainer({
           </div>
         )}
         {prompts.map((prompt) => (
-          <div key={prompt.id}>
+          <div
+            className="flex flex-col items-center
+          "
+            key={prompt.id}
+          >
             <div
               onClick={() => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 setCurrentPrompt(prompt);
               }}
-              className="mb-8 cursor-pointer rounded-md border border-black/20 bg-gray-100 p-4 text-center"
+              className="mb-2 w-full cursor-pointer rounded-md border border-black/20 bg-gray-100 p-4 text-center"
             >
               {prompt.name}
             </div>
-            {/* TODO: Place a down arrow here */}
+            <AiOutlineArrowDown className="mb-2" />
           </div>
         ))}
         <button

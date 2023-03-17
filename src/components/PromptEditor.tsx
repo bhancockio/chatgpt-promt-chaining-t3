@@ -25,9 +25,9 @@ function PromptEditor({
   setPrompts,
   setCurrentPrompt,
 }: {
-  prompt: Prompt | undefined;
+  prompt: Prompt | null;
   setPrompts: Dispatch<SetStateAction<Prompt[]>>;
-  setCurrentPrompt: Dispatch<SetStateAction<Prompt>>;
+  setCurrentPrompt: Dispatch<SetStateAction<Prompt | null>>;
 }) {
   const {
     register,

@@ -8,7 +8,7 @@ function ConversationSidebar({
   setConversations,
 }: {
   conversations: Conversation[];
-  setCurrentConversation: Dispatch<SetStateAction<Conversation | undefined>>;
+  setCurrentConversation: Dispatch<SetStateAction<Conversation | null>>;
   setConversations: Dispatch<SetStateAction<Conversation[]>>;
 }) {
   const conversationMutation = api.conversation.create.useMutation({
@@ -18,12 +18,12 @@ function ConversationSidebar({
         setCurrentConversation(resp);
         setConversations((c) => c.concat(resp));
       } else {
-        setCurrentConversation(undefined);
+        setCurrentConversation(null);
       }
     },
     onError: (error) => {
       console.error(error);
-      setCurrentConversation(undefined);
+      setCurrentConversation(null);
     },
   });
   const createConversation = () => {
