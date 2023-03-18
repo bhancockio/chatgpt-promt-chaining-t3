@@ -1,4 +1,5 @@
-import type { Conversation, Prompt } from "@prisma/client";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import type { Conversation, ConversationResult, Prompt } from "@prisma/client";
 import {
   createContext,
   type Dispatch,
@@ -18,6 +19,12 @@ export type ConversationContextType = {
   setConversations: Dispatch<SetStateAction<Conversation[]>>;
   currentConversation: Conversation | null;
   setCurrentConversation: Dispatch<SetStateAction<Conversation | null>>;
+  conversationResults: ConversationResult[];
+  setConversationResults: Dispatch<SetStateAction<ConversationResult[]>>;
+  currentConversationResult: ConversationResult | null;
+  setCurrentConversationResult: Dispatch<
+    SetStateAction<ConversationResult | null>
+  >;
 };
 
 export const ConversationContext =
@@ -29,7 +36,11 @@ const ConversationProvider = ({ children }: { children: ReactNode }) => {
   const [currentConversation, setCurrentConversation] =
     useState<Conversation | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  //   const [conversationResultList, setConversationResultList] = useState([]);
+  const [conversationResults, setConversationResults] = useState<
+    ConversationResult[]
+  >([]);
+  const [currentConversationResult, setCurrentConversationResult] =
+    useState<ConversationResult | null>(null);
 
   api.conversation.getall.useQuery(undefined, {
     onSuccess: (conversations: Conversation[]) => {
@@ -53,7 +64,6 @@ const ConversationProvider = ({ children }: { children: ReactNode }) => {
         console.log("prompts", prompts);
         setPrompts(prompts);
         if (prompts.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           const prompt: Prompt | null = prompts[0] || null;
           setCurrentPrompt(prompt);
         }
@@ -61,6 +71,22 @@ const ConversationProvider = ({ children }: { children: ReactNode }) => {
       onError: (error) => {
         console.error(error);
         setPrompts([]);
+      },
+    }
+  );
+
+  api.conversationResult.getAllResultsForConversation.useQuery(
+    {
+      conversationId: currentConversation?.id || "",
+    },
+    {
+      enabled: currentConversation?.id !== undefined,
+      onSuccess: (fetchedConversationResults: ConversationResult[]) => {
+        setConversationResults(fetchedConversationResults);
+      },
+      onError: (error) => {
+        console.error(error);
+        setConversationResults([]);
       },
     }
   );
@@ -84,6 +110,10 @@ const ConversationProvider = ({ children }: { children: ReactNode }) => {
         setCurrentConversation,
         conversations,
         setConversations,
+        conversationResults,
+        setConversationResults,
+        currentConversationResult,
+        setCurrentConversationResult,
       }}
     >
       {children}

@@ -2,7 +2,7 @@ import { type Conversation } from "@prisma/client";
 import { useState, useContext } from "react";
 import { api } from "~/utils/api";
 import { BsPencil, BsTrash, BsCheck } from "react-icons/bs";
-import { MdOutlineCancel } from "react-icons/md";
+import { RxCross1 } from "react-icons/rx";
 import {
   ConversationContext,
   type ConversationContextType,
@@ -94,7 +94,7 @@ function ConversationSidebarCell({
                 className="text-gray-400 hover:text-white"
                 onClick={updateConversationName}
               />
-              <MdOutlineCancel
+              <RxCross1
                 onClick={() => setIsEditState(() => false)}
                 className="text-gray-400 hover:text-white"
               />
@@ -106,7 +106,7 @@ function ConversationSidebarCell({
                 className="text-gray-400 hover:text-white"
                 onClick={deleteConversation}
               />
-              <MdOutlineCancel
+              <RxCross1
                 onClick={() => setIsDeleteState(() => false)}
                 className="text-gray-400 hover:text-white"
               />

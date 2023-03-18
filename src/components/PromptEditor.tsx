@@ -108,7 +108,7 @@ function PromptEditor() {
   }, [currentPrompt, reset]);
 
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col">
       <div className="w-full bg-gray-800 p-3 text-center text-white">
         <h3 className="text-xl">Prompt</h3>
       </div>

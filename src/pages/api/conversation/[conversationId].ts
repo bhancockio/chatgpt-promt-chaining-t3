@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import type { Prompt } from "@prisma/client";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { prisma } from "../../../server/db";
-import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
+import {
+  type ChatCompletionRequestMessage,
+  Configuration,
+  OpenAIApi,
+} from "openai";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -22,6 +28,7 @@ type OpenAPIConversation = {
 
 const X_PARAMETER_KEY = "{X}";
 const Y_PARAMETER_KEY = "{Y}";
+const CONVERSATION_SEPARATOR = "------------";
 
 export default async function handler(
   req: ConversationRequest,
@@ -46,10 +53,16 @@ export default async function handler(
   const conversations = formatPromptsForOpenAI(prompts);
 
   // Send conversations to openai
-  const results = executeAllConversations(conversations);
+  const results = await executeAllConversations(conversations);
+
+  // Save the results
+  const savedConversationResult = await saveConversationResult(
+    results,
+    conversationId
+  );
 
   // return results
-  return res.status(200).json(JSON.stringify(results));
+  return res.status(200).json(savedConversationResult);
 }
 
 type validationResponse = {
@@ -272,7 +285,13 @@ const executeAllConversations = async (
 
     // Grab final response
     const lastmessage = messages[messages.length - 1]?.content || "";
-    finalResult = finalResult.concat(lastmessage, " ");
+    finalResult = finalResult.concat(lastmessage, CONVERSATION_SEPARATOR);
   }
   return finalResult;
+};
+
+const saveConversationResult = (result: string, conversationId: string) => {
+  return prisma.conversationResult.create({
+    data: { conversationId, result },
+  });
 };
