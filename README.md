@@ -6,6 +6,8 @@ ChatGPT Prompt Chaining is a web application that enables users to build a serie
 
 To get started with ChatGPT Prompt Chaining, head over to https://chatgpt-promt-chaining-t3.vercel.app/.
 
+I also put together a video about this project right here: https://youtu.be/gH-20sEb-gg
+
 ## Key Terminology
 
 - Conversation: A series of prompts
