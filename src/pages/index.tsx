@@ -9,19 +9,19 @@ const Home: NextPage = () => {
   return (
     <ConversationProvider>
       <div className="flex flex-row">
-        <div className="w-1/6 min-w-[200px] overflow-y-scroll">
+        <div className="w-1/6 min-w-[200px] overflow-y-auto">
           <ConversationSidebar />
         </div>
         <div className="h-screen w-5/6">
-          <div className="flex h-3/4 flex-row">
-            <div className="w-2/3 overflow-y-scroll">
+          <div className="flex h-3/4 flex-row overflow-y-auto">
+            <div className="w-2/3">
               <ConversationContainer />
             </div>
-            <div className="border-gray-80 w-1/3 overflow-y-scroll border-0 border-l-2 text-black">
+            <div className="border-gray-80 w-1/3 overflow-y-auto border-0 border-l-2 text-black">
               <PromptEditor />
             </div>
           </div>
-          <div className="h-1/4 overflow-y-scroll">
+          <div className="h-1/4 overflow-y-auto">
             <ConversationResults />
           </div>
         </div>
