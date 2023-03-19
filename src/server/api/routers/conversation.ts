@@ -1,7 +1,7 @@
 import { type Conversation } from "@prisma/client";
 import { object, string } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 const deleteConversationSchema = object({
   id: string({
@@ -31,16 +31,17 @@ const queryConversationSchema = object({
 });
 
 export const conversationRouter = createTRPCRouter({
-  create: publicProcedure
+  create: protectedProcedure
     .input(createConversationSchema)
     .mutation(({ ctx, input }) => {
       const { name } = input;
+      const { session } = ctx;
+      const userId = session.user.id;
       let newConveration: Conversation;
 
       return ctx.prisma.conversation
-        .create({ data: { name } })
+        .create({ data: { name, userId } })
         .then((conversation) => {
-          console.log("Conversation", conversation);
           newConveration = conversation;
 
           // Create the default prompt for the new conversation
@@ -51,6 +52,7 @@ export const conversationRouter = createTRPCRouter({
               isContextPrompt: true,
               conversationId: conversation.id,
               order: 0,
+              userId: userId,
             },
           });
         })
@@ -63,31 +65,33 @@ export const conversationRouter = createTRPCRouter({
           return null;
         });
     }),
-  update: publicProcedure
+  update: protectedProcedure
     .input(updateConversationSchema)
     .mutation(({ ctx, input }) => {
       const { id, name } = input;
-
+      // TODO: Verify that the user requesting to update conversation is authorized.
       return ctx.prisma.conversation.update({ where: { id }, data: { name } });
     }),
-  getall: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.conversation.findMany();
+  getall: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.conversation.findMany({
+      where: { userId: ctx.session.user.id },
+    });
   }),
-  get: publicProcedure
+  get: protectedProcedure
     .input(queryConversationSchema)
     .query(({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
-
+      // TODO: Verify that the user requesting to get conversation is authorized.
       return prisma.conversation.findUniqueOrThrow({
         where: { id: id },
       });
     }),
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(deleteConversationSchema)
     .mutation(({ ctx, input }) => {
       const { id } = input;
-
+      // TODO: Verify that the user requesting to delete conversation is authorized.
       // Delete all cooresponding prompts for the conversation
       ctx.prisma.prompt
         .deleteMany({

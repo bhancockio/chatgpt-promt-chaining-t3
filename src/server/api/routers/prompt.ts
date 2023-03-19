@@ -1,6 +1,6 @@
 import { boolean, object, string, number } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 const postPromptSchema = object({
   id: string().optional(),
@@ -30,33 +30,37 @@ const getAllPromptsForConversationSchema = object({
 });
 
 export const promptRouter = createTRPCRouter({
-  post: publicProcedure.input(postPromptSchema).mutation(({ ctx, input }) => {
-    const { id } = input;
-
-    if (id) {
-      return ctx.prisma.prompt.update({
-        where: { id },
-        data: input,
-      });
-    } else {
-      return ctx.prisma.prompt.create({
-        data: input,
-      });
-    }
-  }),
-  getAllPromptsForConversation: publicProcedure
-    .input(getAllPromptsForConversationSchema)
-    .query(({ ctx, input }) => {
-      const { prisma } = ctx;
-      const { conversationId } = input;
-
-      return prisma.prompt.findMany({ where: { conversationId } });
-    }),
-  delete: publicProcedure
-    .input(deletePromptSchema)
+  post: protectedProcedure
+    .input(postPromptSchema)
     .mutation(({ ctx, input }) => {
       const { id } = input;
 
+      if (id) {
+        return ctx.prisma.prompt.update({
+          where: { id },
+          data: input,
+        });
+      } else {
+        return ctx.prisma.prompt.create({
+          data: { ...input, userId: ctx.session.user.id },
+        });
+      }
+    }),
+  getAllPromptsForConversation: protectedProcedure
+    .input(getAllPromptsForConversationSchema)
+    .query(({ ctx, input }) => {
+      const { prisma, session } = ctx;
+      const { conversationId } = input;
+
+      return prisma.prompt.findMany({
+        where: { conversationId, userId: session.user.id },
+      });
+    }),
+  delete: protectedProcedure
+    .input(deletePromptSchema)
+    .mutation(({ ctx, input }) => {
+      const { id } = input;
+      // TODO: Verify that the user requesting to delete prompt is authorized.
       return ctx.prisma.prompt.delete({ where: { id } });
     }),
 });

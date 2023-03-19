@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { object, string } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 const createConversationResultSchema = object({
   conversationId: string({
@@ -41,49 +41,49 @@ const deleteConversationResultsForConversationSchema = object({
 });
 
 export const conversationResultRouter = createTRPCRouter({
-  create: publicProcedure
+  create: protectedProcedure
     .input(createConversationResultSchema)
     .mutation(({ ctx, input }) => {
       const { conversationId, result } = input;
 
       return ctx.prisma.conversationResult.create({
-        data: { conversationId, result },
+        data: { conversationId, result, userId: ctx.session.user.id },
       });
     }),
-  update: publicProcedure
+  update: protectedProcedure
     .input(updateConversationResultSchema)
     .mutation(({ ctx, input }) => {
-      const { id, name, result } = input;
+      const { id, name } = input;
 
       return ctx.prisma.conversationResult.update({
         where: { id },
-        data: { name, result },
+        data: { name },
       });
     }),
-  getAllResultsForConversation: publicProcedure
+  getAllResultsForConversation: protectedProcedure
     .input(getConversationResultsSchema)
     .query(({ ctx, input }) => {
       const { conversationId } = input;
 
       return ctx.prisma.conversationResult.findMany({
-        where: { conversationId },
+        where: { conversationId, userId: ctx.session.user.id },
         orderBy: [{ createdAt: "desc" }],
       });
     }),
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(deleteConversationResultSchema)
     .mutation(({ ctx, input }) => {
       const { id } = input;
 
       return ctx.prisma.conversationResult.delete({ where: { id } });
     }),
-  deleteAllResultsForConversation: publicProcedure
+  deleteAllResultsForConversation: protectedProcedure
     .input(deleteConversationResultsForConversationSchema)
     .mutation(({ ctx, input }) => {
       const { conversationId } = input;
 
       return ctx.prisma.conversationResult.deleteMany({
-        where: { conversationId },
+        where: { conversationId, userId: ctx.session.user.id },
       });
     }),
 });
