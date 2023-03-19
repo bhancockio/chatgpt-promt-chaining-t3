@@ -14,11 +14,10 @@ function ConversationContainer() {
 
   const promptMutation = api.prompt.post.useMutation({
     onSuccess: (newPrompt: Prompt) => {
-      console.log("Successfully created conversation", newPrompt);
       setPrompts((prompts) => prompts.concat(newPrompt));
     },
     onError: (error) => {
-      console.log("response", error);
+      console.error("response", error);
     },
   });
 

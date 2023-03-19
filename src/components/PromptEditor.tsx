@@ -44,7 +44,6 @@ function PromptEditor() {
 
   const postPromptMutation = api.prompt.post.useMutation({
     onSuccess: (newPrompt: Prompt) => {
-      console.log("Successfully updated", newPrompt);
       setPrompts((oldPrompts) =>
         oldPrompts.map((oldPrompt) =>
           oldPrompt.id === newPrompt.id ? newPrompt : oldPrompt
@@ -62,7 +61,6 @@ function PromptEditor() {
         prompts.filter((p) => p.id !== deletedPrompt?.id)
       );
       setCurrentPrompt(null);
-      console.log("response", deletedPrompt);
     },
     onError: (error) => {
       console.error("Error deleting prompt");
@@ -95,7 +93,6 @@ function PromptEditor() {
 
   useEffect(() => {
     if (currentPrompt) {
-      console.log("isContextPrompt", currentPrompt.isContextPrompt);
       setIsContextPrompt(currentPrompt.isContextPrompt);
       reset({
         name: currentPrompt.name,

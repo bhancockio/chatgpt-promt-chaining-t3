@@ -16,6 +16,7 @@ import { BsPencil, BsTrash } from "react-icons/bs";
 import { RxCross1 } from "react-icons/rx";
 import dayjs from "dayjs";
 import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
 
 function ConversationResultList() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +30,7 @@ function ConversationResultList() {
     setConversationResults,
     currentConversationResult,
   } = useContext(ConversationContext) as ConversationContextType;
+  const { data: sessionData } = useSession();
 
   const updateConversationResultMutation =
     api.conversationResult.update.useMutation({
@@ -51,10 +53,19 @@ function ConversationResultList() {
   const runConversationHandler = () => {
     if (currentConversation) {
       setFetchingConversation(true);
-      fetch(`api/conversation/${currentConversation.id}`)
+      const requestConfig = {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          conversationId: currentConversation.id,
+          userId: sessionData?.user.id,
+        }),
+      };
+      fetch(`api/conversation/`, requestConfig)
         .then((resp) => resp.json())
         .then((conversationResult: ConversationResult) => {
-          console.log("conversationResult", conversationResult);
           setConversationResults((oldResults) => [
             conversationResult,
             ...oldResults,

@@ -61,7 +61,6 @@ const ConversationProvider = ({ children }: { children: ReactNode }) => {
     {
       enabled: currentConversation?.id !== undefined,
       onSuccess: (prompts) => {
-        console.log("prompts", prompts);
         setPrompts(prompts);
         if (prompts.length > 0) {
           const prompt: Prompt | null = prompts[0] || null;
@@ -90,14 +89,6 @@ const ConversationProvider = ({ children }: { children: ReactNode }) => {
       },
     }
   );
-
-  useEffect(() => {
-    console.log("Current conversation", currentConversation);
-  }, [currentConversation]);
-
-  useEffect(() => {
-    console.log("current prompt", currentPrompt);
-  }, [currentPrompt]);
 
   return (
     <ConversationContext.Provider

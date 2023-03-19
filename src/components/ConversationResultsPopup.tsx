@@ -46,7 +46,6 @@ function ConversationResultsPopup({
     const handleOutsideClick = (event: MouseEvent) => {
       if (modalRef) {
         if (!modalRef.current?.contains(event.target as Node)) {
-          console.log("trigger");
           if (initialRenderflag) {
             setIsOpen(false);
           } else {

@@ -10,17 +10,22 @@ import {
   Configuration,
   OpenAIApi,
 } from "openai";
+import { object, string } from "zod";
+
+const requestBodySchema = object({
+  conversationId: string({
+    required_error: "Conversation ID required.",
+  }),
+  userId: string({
+    required_error: "User ID required.",
+  }),
+});
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
-interface ConversationRequest extends NextApiRequest {
-  query: {
-    conversationId: string;
-  };
-}
+const openai = new OpenAIApi(configuration);
 
 type OpenAPIConversation = {
   prompts: ChatCompletionRequestMessage[];
@@ -31,10 +36,19 @@ const Y_PARAMETER_KEY = "{Y}";
 const CONVERSATION_SEPARATOR = "------------";
 
 export default async function handler(
-  req: ConversationRequest,
+  req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const conversationId: string = req.query.conversationId;
+  let conversationId, userId;
+  try {
+    const data = requestBodySchema.parse(req.body);
+    conversationId = data.conversationId;
+    userId = data.userId;
+  } catch (error) {
+    console.error("Error parsing request body");
+    console.error(error);
+    return res.status(400).json({ message: error });
+  }
 
   // Fetch data for conversation with given id from DB
   const prompts: Prompt[] = await prisma.prompt.findMany({
@@ -58,7 +72,8 @@ export default async function handler(
   // Save the results
   const savedConversationResult = await saveConversationResult(
     results,
-    conversationId
+    conversationId,
+    userId
   );
 
   // return results
@@ -258,12 +273,10 @@ const createPromptsBasedOnParameters = (
 const executeAllConversations = async (
   conversations: OpenAPIConversation[]
 ) => {
-  console.log("Executing conversations");
   let finalResult = "";
   for (const conversation of conversations) {
     const messages: ChatCompletionRequestMessage[] = [];
     for (const prompt of conversation.prompts) {
-      console.log("prompt", prompt);
       messages.push(prompt);
       try {
         const completion = await openai.createChatCompletion({
@@ -271,7 +284,6 @@ const executeAllConversations = async (
           model: "gpt-3.5-turbo",
         });
         const message = completion.data.choices[0]?.message;
-        console.log("openai response", message);
         if (message) {
           messages.push(message);
         } else {
@@ -290,8 +302,12 @@ const executeAllConversations = async (
   return finalResult;
 };
 
-const saveConversationResult = (result: string, conversationId: string) => {
+const saveConversationResult = (
+  result: string,
+  conversationId: string,
+  userId: string
+) => {
   return prisma.conversationResult.create({
-    data: { conversationId, result },
+    data: { conversationId, result, userId },
   });
 };

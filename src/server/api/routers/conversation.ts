@@ -93,16 +93,22 @@ export const conversationRouter = createTRPCRouter({
       const { id } = input;
       // TODO: Verify that the user requesting to delete conversation is authorized.
       // Delete all cooresponding prompts for the conversation
-      ctx.prisma.prompt
+      return ctx.prisma.prompt
         .deleteMany({
           where: { conversationId: id },
         })
         .then(() => {
-          console.log("successfully delete prompts for conversation", id);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+          return ctx.prisma.conversationResult.deleteMany({
+            where: { conversationId: id },
+          });
+        })
+        .then(() => {
           return ctx.prisma.conversation.delete({ where: { id: id } });
         })
         .then(() => {
           console.log("successfully delete conversation", id);
+          return id;
         })
         .catch((error) => {
           console.error(error);
