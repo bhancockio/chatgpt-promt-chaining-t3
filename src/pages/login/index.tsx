@@ -23,7 +23,7 @@ function Login() {
       <h1 className="mb-2 mt-8 text-3xl font-bold ">
         Welcome to ChatGPT Prompt Chaining
       </h1>
-      <p className="mb-2 ">Login with your GitHub account to continue</p>
+      <p className="mb-2 ">Login with your Discord account to continue</p>
       <div className="flex flex-row gap-2">
         <button
           onClick={handleAuthClicked}
