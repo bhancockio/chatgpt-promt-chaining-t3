@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 import Head from "next/head";
+import AuthenticationWrapper from "~/components/AuthenticationWrapper";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -19,7 +20,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="w-sceen h-screen">
-        <Component {...pageProps} />
+        <AuthenticationWrapper>
+          <Component {...pageProps} />
+        </AuthenticationWrapper>
       </div>
     </SessionProvider>
   );

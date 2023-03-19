@@ -1,4 +1,4 @@
-import { type NextPage } from "next";
+import type { NextPage } from "next";
 import ConversationContainer from "~/components/ConversationContainer";
 import ConversationResults from "~/components/ConversationResultList";
 import ConversationSidebar from "~/components/ConversationSidebar";
@@ -8,7 +8,7 @@ import ConversationProvider from "~/context/conversationContext";
 const Home: NextPage = () => {
   return (
     <ConversationProvider>
-      <div className="flex flex-row">
+      <div className="flex flex-row overflow-y-hidden">
         <div className="w-1/6 min-w-[200px]">
           <ConversationSidebar />
         </div>

@@ -121,7 +121,7 @@ function ConversationResultList() {
         </div>
 
         {/* LIST */}
-        <table className="w-full table-auto">
+        <table className="w-full ">
           <tbody className="divide-y divide-gray-200">
             {conversationResults.map((result) => (
               <tr key={result.id} className=" odd:bg-gray-200 even:bg-gray-100">
