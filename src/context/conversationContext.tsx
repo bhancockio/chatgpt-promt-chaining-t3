@@ -5,7 +5,6 @@ import {
   type Dispatch,
   type ReactNode,
   type SetStateAction,
-  useEffect,
   useState,
 } from "react";
 import { api } from "~/utils/api";
