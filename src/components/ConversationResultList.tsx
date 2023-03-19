@@ -17,6 +17,7 @@ import { RxCross1 } from "react-icons/rx";
 import dayjs from "dayjs";
 import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
+import axios from "axios";
 
 function ConversationResultList() {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,22 +50,28 @@ function ConversationResultList() {
         setIsEdit(false);
       },
     });
+  const deleteConversationResultMutation =
+    api.conversationResult.delete.useMutation({
+      onSuccess: (deletedConversationResult) => {
+        setConversationResults((conversationResults) =>
+          conversationResults.filter(
+            (c) => c.id !== deletedConversationResult.id
+          )
+        );
+      },
+    });
 
   const runConversationHandler = () => {
     if (currentConversation) {
       setFetchingConversation(true);
-      const requestConfig = {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
+      axios
+        .post("api/conversation", {
           conversationId: currentConversation.id,
           userId: sessionData?.user.id,
-        }),
-      };
-      fetch(`api/conversation/`, requestConfig)
-        .then((resp) => resp.json())
+        })
+        .then((resp) => {
+          return resp.data;
+        })
         .then((conversationResult: ConversationResult) => {
           setConversationResults((oldResults) => [
             conversationResult,
@@ -96,7 +103,7 @@ function ConversationResultList() {
     conversationResult: ConversationResult
   ) => {
     setCurrentConversationResult(conversationResult);
-    setIsOpen(true);
+    deleteConversationResultMutation.mutate({ id: conversationResult.id });
   };
 
   const updateConversationResult = (conversationResult: ConversationResult) => {

@@ -58,11 +58,11 @@ model VerificationToken {
 
 model Prompt {
     id                String       @id @default(cuid())
-    text              String
+    text              String       @db.Text
     name              String       @default("New Prompt")
     isContextPrompt   Boolean      @default(false)
-    matrixParametersX String?
-    matrixParametersY String?
+    matrixParametersX String?      @db.Text
+    matrixParametersY String?      @db.Text
     Conversation      Conversation @relation(fields: [conversationId], references: [id])
     conversationId    String
     createdAt         DateTime     @default(now())
@@ -85,7 +85,7 @@ model ConversationResult {
     id             String       @id @default(cuid())
     name           String       @default("New Conversation Result")
     createdAt      DateTime     @default(now())
-    result         String
+    result         String       @db.Text
     Conversation   Conversation @relation(fields: [conversationId], references: [id])
     conversationId String
     userId         String

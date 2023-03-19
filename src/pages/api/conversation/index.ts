@@ -233,7 +233,7 @@ const createPromptsBasedOnParameters = (
     messages.push(text);
   }
   // Case 2: The user only includes X parameters
-  else if (xParameters.length === 0) {
+  else if (xParameters.length !== 0) {
     for (const x of xParameters.split(",")) {
       if (x === "") {
         continue;
@@ -243,7 +243,7 @@ const createPromptsBasedOnParameters = (
     }
   }
   // Case 3: The user only includes Y parameters
-  else if (yParameters.length === 0) {
+  else if (yParameters.length !== 0) {
     for (const y of yParameters.split(",")) {
       if (y === "") {
         continue;
