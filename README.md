@@ -1,28 +1,36 @@
-# Create T3 App
+# ChatGPT Prompt Chaining
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+ChatGPT Prompt Chaining is a web application that enables users to build a series of conversations in the form of prompts. With ChatGPT Prompt Chaining, you can conduct hundreds of conversations simultaneously and chain them together. This is achieved through the use of variable prompts, which allow you to substitute variables into your messages, enabling you to slightly tweak the messages that you send to the API.
 
-## What's next? How do I make an app with this?
+## Get Started
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+To get started with ChatGPT Prompt Chaining, head over to https://chatgpt-promt-chaining-t3.vercel.app/.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Key Terminology
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- Conversation: A series of prompts
+- Prompt: A message that will be sent to the ChatGPT API
+- Context prompt: Sets the context for the entire conversation, such as telling ChatGPT it is a professional digital writer, etc.
+- Normal prompt: Includes a message that will be sent to the API
+- Variable prompt: Allows you to substitute variables into your messages
 
-## Learn More
+## Technologies
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- NextJS
+- Typescript
+- Prisma
+- React
+- Tailwindcss
+- Planetscale
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+## Future Todos
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- Incorporate responsiveness for mobile devices
+- Incorporate hint boxes on user inputs to improve the user experience.
+- Add a settings page so users can use their own OpenAI access tokens instead of mine.
+- Add more loading spinners and feedback after a user finishes a new operation.
+- Add the current conversation and prompt id to the URL so the user can navigate the website more easily.
 
-## How do I deploy this?
+## Support
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- If you need help with Prompt Chaining, feel free to shoot me a DM https://twitter.com/bhancock_io or shoot me an email at brandon@brandonhancock.io

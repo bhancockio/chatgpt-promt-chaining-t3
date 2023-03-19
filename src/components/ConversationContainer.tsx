@@ -50,7 +50,10 @@ function ConversationContainer() {
       </div>
       {/* BODY */}
       <div className="m-5 flex flex-col ">
-        {prompts.length === 0 && (
+        {!currentConversation && (
+          <>No conversation selected. Start a conversation first.</>
+        )}
+        {currentConversation && prompts.length === 0 && (
           <div>
             <h1>No prompts found.</h1>
           </div>
@@ -73,12 +76,14 @@ function ConversationContainer() {
             <AiOutlineArrowDown className="mb-2" />
           </div>
         ))}
-        <button
-          className="mx-auto flex flex-row items-center gap-2 rounded-md border-2 px-2 py-3"
-          onClick={createPrompt}
-        >
-          Create Prompt <AiOutlinePlusCircle />
-        </button>
+        {currentConversation && (
+          <button
+            className="mx-auto flex flex-row items-center gap-2 rounded-md border-2 px-2 py-3"
+            onClick={createPrompt}
+          >
+            Create Prompt <AiOutlinePlusCircle />
+          </button>
+        )}
       </div>
     </div>
   );

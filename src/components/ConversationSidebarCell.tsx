@@ -15,8 +15,13 @@ function ConversationSidebarCell({
   conversation: Conversation;
   isCurrentConversation: boolean;
 }) {
-  const { setCurrentConversation, setConversations, conversations } =
-    useContext(ConversationContext) as ConversationContextType;
+  const {
+    setCurrentConversation,
+    setConversations,
+    setCurrentPrompt,
+    setPrompts,
+  } = useContext(ConversationContext) as ConversationContextType;
+
   const [isEditState, setIsEditState] = useState(false);
   const [isDeleteState, setIsDeleteState] = useState(false);
   const [newConversationName, setNewConversationName] = useState<string>("");
@@ -41,9 +46,13 @@ function ConversationSidebarCell({
   const deleteConversationMutation = api.conversation.delete.useMutation({
     onSuccess: (deletedConversationID) => {
       setConversations((conversations) =>
-        conversations.filter((c) => c.id !== deletedConversationID)
+        conversations.filter(
+          (conversation) => conversation.id !== deletedConversationID
+        )
       );
-      setCurrentConversation(conversations[0] || null);
+      setCurrentConversation(null);
+      setPrompts([]);
+      setCurrentPrompt(null);
     },
     onError: (error) => {
       console.error("Error deleting conversation");

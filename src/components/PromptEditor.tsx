@@ -107,7 +107,7 @@ function PromptEditor() {
   return (
     <div className="flex flex-col">
       <div className="w-full bg-gray-800 p-3 text-center text-white">
-        <h3 className="text-xl">Prompt</h3>
+        <h3 className="text-xl">Prompt Editor</h3>
       </div>
 
       {currentPrompt ? (
@@ -137,7 +137,7 @@ function PromptEditor() {
               className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
               id="text"
               rows={5}
-              {...register("text")}
+              {...register("text", { required: false })}
             />
             <label
               htmlFor="text"
@@ -157,7 +157,7 @@ function PromptEditor() {
                   type="text"
                   className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
                   id="name"
-                  {...register("matrixParametersX")}
+                  {...register("matrixParametersX", { required: false })}
                 />
                 <label
                   htmlFor="matrixParametersX"
@@ -180,7 +180,7 @@ function PromptEditor() {
                   type="text"
                   className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
                   id="matrixParametersY"
-                  {...register("matrixParametersY")}
+                  {...register("matrixParametersY", { required: false })}
                 />
                 <label
                   htmlFor="matrixParametersY"

@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import {
   type Dispatch,
   type SetStateAction,
@@ -34,6 +33,7 @@ function ConversationResultsPopup({
 
   useEffect(() => {
     if (currentConversationResult) {
+      // Open AI responds in a format made for a text editor, not a browser.
       const formatted = currentConversationResult.result
         .replace(/\\"/g, "")
         .replaceAll('"', "");

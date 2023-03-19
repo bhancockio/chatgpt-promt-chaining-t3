@@ -4,7 +4,6 @@ import {
   type ConversationContextType,
 } from "~/context/conversationContext";
 import { api } from "~/utils/api";
-
 import ConversationSidebarCell from "./ConversationSidebarCell";
 
 function ConversationSidebar() {
@@ -15,10 +14,10 @@ function ConversationSidebar() {
     currentConversation,
   } = useContext(ConversationContext) as ConversationContextType;
   const conversationMutation = api.conversation.create.useMutation({
-    onSuccess: (resp) => {
-      if (resp) {
-        setCurrentConversation(resp);
-        setConversations((c) => c.concat(resp));
+    onSuccess: (conversation) => {
+      if (conversation) {
+        setCurrentConversation(conversation);
+        setConversations((c) => c.concat(conversation));
       } else {
         setCurrentConversation(null);
       }
