@@ -25,12 +25,15 @@ To get started with ChatGPT Prompt Chaining, head over to https://chatgpt-promt-
 
 ## Future Todos
 
+- Fix form issues where you have to click all fields.
 - Incorporate responsiveness for mobile devices
 - Incorporate hint boxes on user inputs to improve the user experience.
 - Add a settings page so users can use their own OpenAI access tokens instead of mine.
 - Add more loading spinners and feedback after a user finishes a new operation.
 - Add the current conversation and prompt id to the URL so the user can navigate the website more easily.
-- Add in unit and e2e testing
+- Add in unit and e2e testing w/ Cypress
+- Conversation branching
+- Run api/conversation elsewhere because of the Vercel 10 second execution duraiton cap.
 
 ## Support
 
